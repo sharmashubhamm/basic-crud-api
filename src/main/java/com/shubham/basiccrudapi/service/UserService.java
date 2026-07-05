@@ -1,5 +1,6 @@
 package com.shubham.basiccrudapi.service;
 
+import com.shubham.basiccrudapi.exception.ResourceNotFoundException;
 import com.shubham.basiccrudapi.model.User;
 import org.springframework.stereotype.Service;
 
@@ -25,21 +26,36 @@ public class UserService {
 
     // Get User By ID
     public User getUserById(UUID id) {
-        return userMap.get(id);
+
+        User user = userMap.get(id);
+
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found with id: " + id);
+        }
+
+        return user;
     }
 
     // Update User
     public User updateUser(UUID id, User updatedUser) {
-        if (userMap.containsKey(id)) {
-            updatedUser.setId(id);
-            userMap.put(id, updatedUser);
-            return updatedUser;
+
+        if (!userMap.containsKey(id)) {
+            throw new ResourceNotFoundException("User not found with id: " + id);
         }
-        return null;
+
+        updatedUser.setId(id);
+        userMap.put(id, updatedUser);
+
+        return updatedUser;
     }
 
     // Delete User
-    public boolean deleteUser(UUID id) {
-        return userMap.remove(id) != null;
+    public void deleteUser(UUID id) {
+
+        if (!userMap.containsKey(id)) {
+            throw new ResourceNotFoundException("User not found with id: " + id);
+        }
+
+        userMap.remove(id);
     }
 }
